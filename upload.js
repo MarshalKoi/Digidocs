@@ -100,8 +100,7 @@ for (let i = 0; i < cameraContainers.length; i++) {
   let cameraContainer = cameraContainers[i];
 
   // Get the elements within the current camera container
-  let startCameraImage =
-    cameraContainer.getElementsByClassName("start-camera")[0];
+  let startCameraImage = cameraContainer.getElementsByClassName("start-camera")[0];
   let video = cameraContainer.getElementsByClassName("video")[0];
   let captureImage = cameraContainer.getElementsByClassName("capture")[0];
   let canvas = cameraContainer.getElementsByClassName("canvas")[0];
