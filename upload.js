@@ -20,13 +20,13 @@ for (let i = 0; i < dropZones.length; i++) {
     if (this.files && this.files.length > 0) {
       var file = this.files[0];
       var fileSize = file.size / 1024 / 1024; // in MB
-  
+
       if (fileSize > 25) {
         alert("File size exceeds 25MB. Please select a smaller file.");
         this.value = ""; // Clear the input
         return;
       }
-  
+
       fileNameElement.textContent = file.name;
       uploadIcon.style.display = "none";
       urlInput.disabled = true;
@@ -100,7 +100,8 @@ for (let i = 0; i < cameraContainers.length; i++) {
   let cameraContainer = cameraContainers[i];
 
   // Get the elements within the current camera container
-  let startCameraImage = cameraContainer.getElementsByClassName("start-camera")[0];
+  let startCameraImage =
+    cameraContainer.getElementsByClassName("start-camera")[0];
   let video = cameraContainer.getElementsByClassName("video")[0];
   let captureImage = cameraContainer.getElementsByClassName("capture")[0];
   let canvas = cameraContainer.getElementsByClassName("canvas")[0];
@@ -109,19 +110,32 @@ for (let i = 0; i < cameraContainers.length; i++) {
 
   startCameraImage.addEventListener("click", function () {
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-      var constraints = isIOS ? { video: { facingMode: "user" } } : { video: { facingMode: "environment" } };
-  
+      // Try to access the rear camera
       navigator.mediaDevices
-        .getUserMedia(constraints)
+        .getUserMedia({ video: { facingMode: "environment" } })
         .then(function (mediaStream) {
-          stream = mediaStream;
-          video.srcObject = stream;
-          video.play();
-          video.style.display = "";
-          captureImage.style.display = "";
-          startCameraImage.style.display = "none";
+          handleSuccess(mediaStream);
+        })
+        .catch(function (err) {
+          // If accessing the front camera fails, try to access any available camera
+          navigator.mediaDevices
+            .getUserMedia({ video: true })
+            .then(function (mediaStream) {
+              handleSuccess(mediaStream);
+            })
+            .catch(function (err) {
+              console.error("Failed to access the camera: " + err);
+            });
         });
+    }
+
+    function handleSuccess(mediaStream) {
+      stream = mediaStream;
+      video.srcObject = stream;
+      video.play();
+      video.style.display = "";
+      captureImage.style.display = "";
+      startCameraImage.style.display = "none";
     }
   });
 
