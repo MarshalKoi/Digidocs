@@ -48,16 +48,16 @@
       <div data-duration-in="300" data-duration-out="100" data-current="Tab 1" data-easing="ease"
         class="tabs-wrapper w-tabs">
         <div class="tab-menu w-tab-menu">
-          <a data-w-tab="Tab 1" class="button tab w-inline-block w-tab-link w--current">
-              <div class="text-block">Document</div>
+          <a data-w-tab="Tab 1" class="button tab w-inline-block w-tab-link w--current tab-link">
+            <div class="text-block">Document</div>
           </a>
-          <a data-w-tab="Tab 2" class="button tab w-inline-block w-tab-link">
-              <div class="text-block">Text</div>
+          <a data-w-tab="Tab 2" class="button tab w-inline-block w-tab-link tab-link">
+            <div class="text-block">Text</div>
           </a>
-          <a data-w-tab="Tab 3" class="button tab w-inline-block w-tab-link">
-              <div class="text-block">Table</div>
+          <a data-w-tab="Tab 3" class="button tab w-inline-block w-tab-link tab-link">
+            <div class="text-block">Table</div>
           </a>
-      </div>
+        </div>
         <div class="w-tab-content">
           <div data-w-tab="Tab 1" class="tab-pane-tab-1 w-tab-pane w--tab-active">
             <div>
@@ -73,10 +73,13 @@
                 <form class="Input-form" name="Input-form" data-name="Input Form" action="upload.php" method="post"
                   enctype="multipart/form-data" class="form_content">
                   <div class="drop-zone form_upload-div-2" style="cursor: pointer">
-                    <img class="upload-icon" loading="lazy" style="width: 20%; display: block; margin: auto;" 
+                    <img class="upload-icon" loading="lazy" style="width: 20%; display: block; margin: auto;"
                       src="https://assets-global.website-files.com/664461d40e974a5d63e735a7/6645b5e0c980b9bf82dcc8b2_Cloud%20Upload.svg"
                       alt="" class="icon-1x1-medium align-center" />
-                    <p class="file-name"></p>
+                    <div class="file-container">
+                      <p class="file-name"></p>
+                      <button type="button" class="remove-file" style="display: none;">x</button>
+                    </div>
                     <input type="file" name="file" class="file" accept=".jpg, .png" style="display: none;">
                   </div>
                   <input class="text-field w-input url" maxlength="256" name="url" data-name="URL 3"
@@ -94,13 +97,13 @@
                   Or use a camera instead
                 </div>
                 <!-- camera -->
-                <div id="camera-container">
-                  <img id="start-camera" src="./camera-svgrepo-com.svg" alt="Start Camera"
+                <div class="camera-container">
+                  <img class="start-camera" src="./camera-svgrepo-com.svg" alt="Start Camera"
                     style="cursor: pointer; width: 20%" />
-                  <video id="video" style="display: none;"></video>
-                  <img id="capture" src="./camera-svgrepo-com.svg" alt="Capture"
+                  <video class="video" style="display: none;"></video>
+                  <img class="capture" src="./camera-svgrepo-com.svg" alt="Capture"
                     style="display: none; cursor: pointer; width: 20%" />
-                  <canvas id="canvas" style="display: none;"></canvas>
+                  <canvas class="canvas" style="display: none;"></canvas>
                 </div>
                 <div class="w-form-done">
                   <div>Thank you! Your submission has been received!</div>
@@ -125,10 +128,13 @@
                 <form class="Input-form" name="Input-form" data-name="Input Form" action="upload.php" method="post"
                   enctype="multipart/form-data" class="form_content">
                   <div class="drop-zone form_upload-div-2" style="cursor: pointer">
-                    <img class="upload-icon" loading="lazy" style="width: 20%; display: block; margin: auto;" 
+                    <img class="upload-icon" loading="lazy" style="width: 20%; display: block; margin: auto;"
                       src="https://assets-global.website-files.com/664461d40e974a5d63e735a7/6645b5e0c980b9bf82dcc8b2_Cloud%20Upload.svg"
                       alt="" class="icon-1x1-medium align-center" />
-                    <p class="file-name"></p>
+                    <div class="file-container">
+                      <p class="file-name"></p>
+                      <button type="button" class="remove-file" style="display: none;">x</button>
+                    </div>
                     <input type="file" name="file" class="file" accept=".jpg, .png" style="display: none;">
                   </div>
                   <input class="text-field w-input url" maxlength="256" name="url" data-name="URL 3"
@@ -146,13 +152,13 @@
                   Or use a camera instead
                 </div>
                 <!-- camera -->
-                <div id="camera-container">
-                  <img id="start-camera" src="./camera-svgrepo-com.svg" alt="Start Camera"
+                <div class="camera-container">
+                  <img class="start-camera" src="./camera-svgrepo-com.svg" alt="Start Camera"
                     style="cursor: pointer; width: 20%" />
-                  <video id="video" style="display: none;"></video>
-                  <img id="capture" src="./camera-svgrepo-com.svg" alt="Capture"
+                  <video class="video" style="display: none;"></video>
+                  <img class="capture" src="./camera-svgrepo-com.svg" alt="Capture"
                     style="display: none; cursor: pointer; width: 20%" />
-                  <canvas id="canvas" style="display: none;"></canvas>
+                  <canvas class="canvas" style="display: none;"></canvas>
                 </div>
                 <div class="w-form-done">
                   <div>Thank you! Your submission has been received!</div>
@@ -177,10 +183,13 @@
                 <form class="Input-form" name="Input-form" data-name="Input Form" action="upload.php" method="post"
                   enctype="multipart/form-data" class="form_content">
                   <div class="drop-zone form_upload-div-2" style="cursor: pointer">
-                    <img class="upload-icon" loading="lazy" style="width: 20%; display: block; margin: auto;" 
+                    <img class="upload-icon" loading="lazy" style="width: 20%; display: block; margin: auto;"
                       src="https://assets-global.website-files.com/664461d40e974a5d63e735a7/6645b5e0c980b9bf82dcc8b2_Cloud%20Upload.svg"
                       alt="" class="icon-1x1-medium align-center" />
-                    <p class="file-name"></p>
+                    <div class="file-container">
+                      <p class="file-name"></p>
+                      <button type="button" class="remove-file" style="display: none;">x</button>
+                    </div>
                     <input type="file" name="file" class="file" accept=".jpg, .png" style="display: none;">
                   </div>
                   <input class="text-field w-input url" maxlength="256" name="url" data-name="URL 3"
@@ -198,13 +207,13 @@
                   Or use a camera instead
                 </div>
                 <!-- camera -->
-                <div id="camera-container">
-                  <img id="start-camera" src="./camera-svgrepo-com.svg" alt="Start Camera"
+                <div class="camera-container">
+                  <img class="start-camera" src="./camera-svgrepo-com.svg" alt="Start Camera"
                     style="cursor: pointer; width: 20%" />
-                  <video id="video" style="display: none;"></video>
-                  <img id="capture" src="./camera-svgrepo-com.svg" alt="Capture"
+                  <video class="video" style="display: none;"></video>
+                  <img class="capture" src="./camera-svgrepo-com.svg" alt="Capture"
                     style="display: none; cursor: pointer; width: 20%" />
-                  <canvas id="canvas" style="display: none;"></canvas>
+                  <canvas class="canvas" style="display: none;"></canvas>
                 </div>
                 <div class="w-form-done">
                   <div>Thank you! Your submission has been received!</div>

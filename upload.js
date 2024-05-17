@@ -18,7 +18,16 @@ for (let i = 0; i < dropZones.length; i++) {
 
   fileInput.addEventListener("change", function () {
     if (this.files && this.files.length > 0) {
-      fileNameElement.textContent = this.files[0].name;
+      var file = this.files[0];
+      var fileSize = file.size / 1024 / 1024; // in MB
+  
+      if (fileSize > 25) {
+        alert("File size exceeds 25MB. Please select a smaller file.");
+        this.value = ""; // Clear the input
+        return;
+      }
+  
+      fileNameElement.textContent = file.name;
       uploadIcon.style.display = "none";
       urlInput.disabled = true;
     } else {
@@ -57,42 +66,95 @@ for (let i = 0; i < dropZones.length; i++) {
   });
 }
 
-//camera script
-var startCameraImage = document.getElementById("start-camera");
-var video = document.getElementById("video");
-var canvas = document.getElementById("canvas");
-var captureImage = document.getElementById("capture");
+window.addEventListener("DOMContentLoaded", (event) => {
+  const fileInput = document.querySelector(".file");
+  const removeFileButton = document.querySelector(".remove-file");
+  const fileNameElement = document.querySelector(".file-name");
+  const uploadIcon = document.querySelector(".upload-icon");
+  const urlInput = document.querySelector(".url"); // Use '.url' as the selector
 
-startCameraImage.addEventListener("click", function () {
-  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-    navigator.mediaDevices
-      .getUserMedia({ video: { facingMode: "environment" } })
-      .then(function (stream) {
-        video.srcObject = stream;
-        video.play();
-        video.style.display = "";
-        captureImage.style.display = "";
-        startCameraImage.style.display = "none";
-      });
-  }
-});
-
-captureImage.addEventListener("click", function () {
-  var context = canvas.getContext("2d");
-  context.drawImage(video, 0, 0, 640, 480);
-  var data = canvas.toDataURL("image/png");
-  // Send the data to the server
-  fetch("upload.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ image: data }),
-  }).then(function (response) {
-    if (response.ok) {
-      console.log("Image was captured and sent to the server");
-    } else {
-      console.error("Failed to send image to the server");
+  fileInput.addEventListener("change", function () {
+    if (this.files && this.files[0]) {
+      fileNameElement.textContent = this.files[0].name;
+      removeFileButton.style.display = "block";
+      uploadIcon.style.display = "none";
+      urlInput.disabled = true;
     }
   });
+
+  removeFileButton.addEventListener("click", function (event) {
+    event.stopPropagation();
+    fileInput.value = "";
+    fileNameElement.textContent = "";
+    this.style.display = "none";
+    uploadIcon.style.display = "block";
+    urlInput.disabled = false;
+  });
 });
+
+//camera script
+// Get all camera containers
+var cameraContainers = document.getElementsByClassName("camera-container");
+
+for (let i = 0; i < cameraContainers.length; i++) {
+  let cameraContainer = cameraContainers[i];
+
+  // Get the elements within the current camera container
+  let startCameraImage = cameraContainer.getElementsByClassName("start-camera")[0];
+  let video = cameraContainer.getElementsByClassName("video")[0];
+  let captureImage = cameraContainer.getElementsByClassName("capture")[0];
+  let canvas = cameraContainer.getElementsByClassName("canvas")[0];
+
+  let stream;
+
+  startCameraImage.addEventListener("click", function () {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices
+        .getUserMedia({ video: true }) 
+        .then(function (mediaStream) {
+          stream = mediaStream;
+          video.srcObject = stream;
+          video.play();
+          video.style.display = "";
+          captureImage.style.display = "";
+          startCameraImage.style.display = "none";
+        });
+    }
+  });
+
+  captureImage.addEventListener("click", function () {
+    var context = canvas.getContext("2d");
+    context.drawImage(video, 0, 0, 640, 480);
+    var data = canvas.toDataURL("image/png");
+    // Send the data to the server
+    fetch("upload.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      // Rest of your fetch code...
+    });
+  });
+}
+
+// Get all tab links
+var tabLinks = document.getElementsByClassName("tab-link");
+
+for (let i = 0; i < tabLinks.length; i++) {
+  let tabLink = tabLinks[i];
+
+  // Stop the camera and hide the video element when a tab link is clicked
+  tabLink.addEventListener("click", function () {
+    for (let j = 0; j < cameraContainers.length; j++) {
+      let cameraContainer = cameraContainers[j];
+      let video = cameraContainer.getElementsByClassName("video")[0];
+      let stream = video.srcObject;
+      if (stream) {
+        stream.getTracks().forEach(function (track) {
+          track.stop();
+        });
+        video.style.display = "none"; // Hide the video element
+      }
+    }
+  });
+}

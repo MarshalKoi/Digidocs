@@ -3013,3 +3013,19 @@ p {
     padding-bottom: 20px;
   }
 }
+
+.file-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.file-name {
+  font-size: large;
+  margin-right: 10px; /* Add some space between the file name and the 'x' button */
+}
+
+.remove-file{
+  background-color: transparent;
+  font-size: large;
+}
