@@ -132,6 +132,8 @@ for (let i = 0; i < cameraContainers.length; i++) {
     function handleSuccess(mediaStream) {
       stream = mediaStream;
       video.srcObject = stream;
+      video.setAttribute('playsinline', ''); // required on iOS
+      video.muted = true; // required on iOS to autoplay
       video.play();
       video.style.display = "";
       captureImage.style.display = "";
