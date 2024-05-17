@@ -109,8 +109,11 @@ for (let i = 0; i < cameraContainers.length; i++) {
 
   startCameraImage.addEventListener("click", function () {
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      var constraints = isIOS ? { video: { facingMode: "user" } } : { video: { facingMode: "environment" } };
+  
       navigator.mediaDevices
-        .getUserMedia({ video: true }) 
+        .getUserMedia(constraints)
         .then(function (mediaStream) {
           stream = mediaStream;
           video.srcObject = stream;
