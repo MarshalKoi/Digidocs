@@ -100,7 +100,8 @@ for (let i = 0; i < cameraContainers.length; i++) {
   let cameraContainer = cameraContainers[i];
 
   // Get the elements within the current camera container
-  let startCameraImage = cameraContainer.getElementsByClassName("start-camera")[0];
+  let startCameraImage =
+    cameraContainer.getElementsByClassName("start-camera")[0];
   let video = cameraContainer.getElementsByClassName("video")[0];
   let captureImage = cameraContainer.getElementsByClassName("capture")[0];
   let canvas = cameraContainer.getElementsByClassName("canvas")[0];
@@ -131,7 +132,7 @@ for (let i = 0; i < cameraContainers.length; i++) {
     function handleSuccess(mediaStream) {
       stream = mediaStream;
       video.srcObject = stream;
-      video.setAttribute('playsinline', ''); // required on iOS
+      video.setAttribute("playsinline", ""); // required on iOS
       video.muted = true; // required on iOS to autoplay
       video.play();
       video.style.display = "";
@@ -140,10 +141,51 @@ for (let i = 0; i < cameraContainers.length; i++) {
     }
   });
 
+  function onOpenCvReady() {
+    console.log('OpenCV.js is ready');
+  }
+
   captureImage.addEventListener("click", function () {
     var context = canvas.getContext("2d");
     context.drawImage(video, 0, 0, 640, 480);
-    var data = canvas.toDataURL("image/png");
+
+    // Get image data from the canvas
+    let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+    // Convert the image to grayscale
+    let gray = new cv.Mat();
+    cv.cvtColor(imageData, gray, cv.COLOR_RGBA2GRAY);
+
+    // Use Canny edge detection
+    let edges = new cv.Mat();
+    cv.Canny(gray, edges, 50, 100, 3, false);
+
+    // Find contours
+    let contours = new cv.MatVector();
+    let hierarchy = new cv.Mat();
+    cv.findContours(
+      edges,
+      contours,
+      hierarchy,
+      cv.RETR_CCOMP,
+      cv.CHAIN_APPROX_SIMPLE
+    );
+
+    // Assuming the largest contour is the document, sort the contours by area and pick the largest one.
+    contours.sort((a, b) => cv.contourArea(b) - cv.contourArea(a));
+    let contour = contours.get(0);
+
+    // Get the bounding rectangle of the largest contour
+    let rect = cv.boundingRect(contour);
+
+    // Crop the image
+    let cropped = gray.roi(rect);
+
+    // Convert the cropped image back to a canvas and get the data URL
+    let croppedCanvas = document.createElement("canvas");
+    cv.imshow(croppedCanvas, cropped);
+    var data = croppedCanvas.toDataURL("image/png");
+
     // Send the data to the server
     fetch("upload.php", {
       method: "POST",
