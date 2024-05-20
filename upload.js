@@ -174,17 +174,19 @@ document.querySelector('.start-camera').addEventListener('click', function () {
     result.height = canvas.height;
   };
 
+  window.addEventListener('resize', () => {
+    // Update canvas dimensions to match new video dimensions
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    result.width = canvas.width;
+    result.height = canvas.height;
+  });
+
   video.onplay = () => {
     const canvasCtx = canvas.getContext("2d");
     const resultCtx = result.getContext("2d");
 
     setInterval(() => {
-      // Update canvas and result dimensions to match video dimensions
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      result.width = canvas.width;
-      result.height = canvas.height;
-
       canvasCtx.drawImage(video, 0, 0, canvas.width, canvas.height);
       const resultCanvas = scanner.highlightPaper(canvas);
       resultCtx.drawImage(resultCanvas, 0, 0, result.width, result.height);
