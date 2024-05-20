@@ -112,16 +112,16 @@ window.addEventListener("DOMContentLoaded", (event) => {
 
   fileInput.addEventListener("change", function () {
     if (this.files && this.files[0]) {
-        fileNameElement.textContent = this.files[0].name;
-        removeFileButton.style.display = "block";
-        uploadIcon.style.display = "none";
-        urlInput.disabled = true;
+      fileNameElement.textContent = this.files[0].name;
+      removeFileButton.style.display = "block";
+      uploadIcon.style.display = "none";
+      urlInput.disabled = true;
     } else {
-        // If no file is selected, hide the removeFileButton
-        removeFileButton.style.display = "none";
-        uploadIcon.style.display = "block";
-        urlInput.disabled = false;
-        setCameraBlockPointerEvents(true);
+      // If no file is selected, hide the removeFileButton
+      removeFileButton.style.display = "none";
+      uploadIcon.style.display = "block";
+      urlInput.disabled = false;
+      setCameraBlockPointerEvents(true);
     }
   });
 
@@ -166,19 +166,25 @@ document.querySelector('.start-camera').addEventListener('click', function () {
       console.error("Error accessing webcam: ", err);
     });
 
-    video.onloadedmetadata = () => {
-      // Set canvas dimensions to video dimensions
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      result.width = canvas.width;
-      result.height = canvas.height;
-    };
+  video.onloadedmetadata = () => {
+    // Set canvas dimensions to video dimensions
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    result.width = canvas.width;
+    result.height = canvas.height;
+  };
 
   video.onplay = () => {
     const canvasCtx = canvas.getContext("2d");
     const resultCtx = result.getContext("2d");
 
     setInterval(() => {
+      // Update canvas and result dimensions to match video dimensions
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      result.width = canvas.width;
+      result.height = canvas.height;
+
       canvasCtx.drawImage(video, 0, 0, canvas.width, canvas.height);
       const resultCanvas = scanner.highlightPaper(canvas);
       resultCtx.drawImage(resultCanvas, 0, 0, result.width, result.height);
