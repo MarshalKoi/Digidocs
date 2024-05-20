@@ -5,6 +5,33 @@ var urlInputs = document.getElementsByClassName("url");
 var uploadIcons = document.getElementsByClassName("upload-icon");
 var fileNameElements = document.getElementsByClassName("file-name");
 
+function setCameraBlockPointerEvents(enabled) {
+  var cameraBlock = document.querySelector('.camera-block');
+  if (cameraBlock) {
+    cameraBlock.style.pointerEvents = enabled ? 'auto' : 'none';
+  }
+}
+
+function isCameraActive() {
+  var cameraBlock = document.querySelector('.camera-block');
+  // Replace the condition below with your actual condition to check if the camera is active
+  return cameraBlock && cameraBlock.style.pointerEvents === 'none';
+}
+
+var isCameraActive = false;
+
+var cameraBlock = document.querySelector('.camera-block');
+cameraBlock.addEventListener("click", function () {
+  // Set isCameraActive to true when the camera block is clicked
+  isCameraActive = true;
+
+  // Disable the file and URL inputs
+  for (let i = 0; i < fileInputs.length; i++) {
+    fileInputs[i].disabled = true;
+    urlInputs[i].disabled = true;
+  }
+});
+
 for (let i = 0; i < dropZones.length; i++) {
   let dropZone = dropZones[i];
   let fileInput = fileInputs[i];
@@ -29,21 +56,31 @@ for (let i = 0; i < dropZones.length; i++) {
 
       fileNameElement.textContent = file.name;
       uploadIcon.style.display = "none";
-      urlInput.disabled = true;
+      if (!isCameraActive) {
+        urlInput.disabled = true;
+      }
+      setCameraBlockPointerEvents(false);
     } else {
       fileNameElement.textContent = "";
       uploadIcon.style.display = "";
-      urlInput.disabled = false;
+      if (!isCameraActive) {
+        urlInput.disabled = false;
+      }
+      setCameraBlockPointerEvents(true);
     }
   });
 
   urlInput.addEventListener("input", function () {
     if (this.value) {
-      fileInput.disabled = true;
-      dropZone.style.pointerEvents = "none";
+      if (!isCameraActive) {
+        fileInput.disabled = true;
+      }
+      setCameraBlockPointerEvents(false);
     } else {
-      fileInput.disabled = false;
-      dropZone.style.pointerEvents = "";
+      if (!isCameraActive) {
+        fileInput.disabled = false;
+      }
+      setCameraBlockPointerEvents(true);
     }
   });
 
@@ -75,10 +112,16 @@ window.addEventListener("DOMContentLoaded", (event) => {
 
   fileInput.addEventListener("change", function () {
     if (this.files && this.files[0]) {
-      fileNameElement.textContent = this.files[0].name;
-      removeFileButton.style.display = "block";
-      uploadIcon.style.display = "none";
-      urlInput.disabled = true;
+        fileNameElement.textContent = this.files[0].name;
+        removeFileButton.style.display = "block";
+        uploadIcon.style.display = "none";
+        urlInput.disabled = true;
+    } else {
+        // If no file is selected, hide the removeFileButton
+        removeFileButton.style.display = "none";
+        uploadIcon.style.display = "block";
+        urlInput.disabled = false;
+        setCameraBlockPointerEvents(true);
     }
   });
 
@@ -89,19 +132,20 @@ window.addEventListener("DOMContentLoaded", (event) => {
     this.style.display = "none";
     uploadIcon.style.display = "block";
     urlInput.disabled = false;
+    setCameraBlockPointerEvents(true);
   });
 });
 
 //camera script
-document.querySelector('.start-camera').addEventListener('click', function() {
+document.querySelector('.start-camera').addEventListener('click', function () {
   document.getElementById('videoContainer').style.display = 'block';
 
   const scanner = new jscanify();
   const canvas = document.getElementById("canvas");
   const result = document.getElementById("result");
   const video = document.getElementById("video");
-  const captureButton = document.getElementById('capture'); 
-  const previewImage = document.getElementById('preview'); 
+  const captureButton = document.getElementById('capture');
+  const previewImage = document.getElementById('preview');
 
   function handleSuccess(stream) {
     video.srcObject = stream;
@@ -154,3 +198,7 @@ document.querySelector('.start-camera').addEventListener('click', function() {
   previewImage.src = dataUrl;
 });
 
+
+document.getElementById('cancel').addEventListener('click', function () {
+  location.reload();
+});
