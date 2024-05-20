@@ -166,19 +166,13 @@ document.querySelector('.start-camera').addEventListener('click', function () {
       console.error("Error accessing webcam: ", err);
     });
 
-  video.onloadedmetadata = () => {
-    const maxDimension = Math.min(video.videoWidth, video.videoHeight, 1024); // iOS limit
-    const aspectRatio = video.videoWidth / video.videoHeight;
-    if (video.videoWidth > video.videoHeight) {
-      canvas.width = maxDimension;
-      canvas.height = maxDimension / aspectRatio;
-    } else {
-      canvas.width = maxDimension * aspectRatio;
-      canvas.height = maxDimension;
-    }
-    result.width = canvas.width;
-    result.height = canvas.height;
-  };
+    video.onloadedmetadata = () => {
+      // Set canvas dimensions to video dimensions
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      result.width = canvas.width;
+      result.height = canvas.height;
+    };
 
   video.onplay = () => {
     const canvasCtx = canvas.getContext("2d");
