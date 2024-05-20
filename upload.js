@@ -93,128 +93,64 @@ window.addEventListener("DOMContentLoaded", (event) => {
 });
 
 //camera script
-// Get all camera containers
-var cameraContainers = document.getElementsByClassName("camera-container");
+document.querySelector('.start-camera').addEventListener('click', function() {
+  document.getElementById('videoContainer').style.display = 'block';
 
-for (let i = 0; i < cameraContainers.length; i++) {
-  let cameraContainer = cameraContainers[i];
+  const scanner = new jscanify();
+  const canvas = document.getElementById("canvas");
+  const result = document.getElementById("result");
+  const video = document.getElementById("video");
+  const captureButton = document.getElementById('capture'); 
+  const previewImage = document.getElementById('preview'); 
 
-  // Get the elements within the current camera container
-  let startCameraImage =
-    cameraContainer.getElementsByClassName("start-camera")[0];
-  let video = cameraContainer.getElementsByClassName("video")[0];
-  let captureImage = cameraContainer.getElementsByClassName("capture")[0];
-  let canvas = cameraContainer.getElementsByClassName("canvas")[0];
-
-  let stream;
-
-  startCameraImage.addEventListener("click", function () {
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      // Try to access the rear camera
-      navigator.mediaDevices
-        .getUserMedia({ video: { facingMode: "environment" } })
-        .then(function (mediaStream) {
-          handleSuccess(mediaStream);
-        })
-        .catch(function (err) {
-          // If accessing the front camera fails, try to access any available camera
-          navigator.mediaDevices
-            .getUserMedia({ video: true })
-            .then(function (mediaStream) {
-              handleSuccess(mediaStream);
-            })
-            .catch(function (err) {
-              console.error("Failed to access the camera: " + err);
-            });
-        });
-    }
-
-    function handleSuccess(mediaStream) {
-      stream = mediaStream;
-      video.srcObject = stream;
-      video.setAttribute("playsinline", ""); // required on iOS
-      video.muted = true; // required on iOS to autoplay
-      video.play();
-      video.style.display = "";
-      captureImage.style.display = "";
-      startCameraImage.style.display = "none";
-    }
-  });
-
-  function onOpenCvReady() {
-    console.log('OpenCV.js is ready');
+  function handleSuccess(stream) {
+    video.srcObject = stream;
+    video.setAttribute("playsinline", ""); // required on iOS
+    video.muted = true; // required on iOS to autoplay
+    video.play();
+    video.style.display = "";
   }
 
-  captureImage.addEventListener("click", function () {
-    var context = canvas.getContext("2d");
-    context.drawImage(video, 0, 0, 640, 480);
-
-    // Get image data from the canvas
-    let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-
-    // Convert the image to grayscale
-    let gray = new cv.Mat();
-    cv.cvtColor(imageData, gray, cv.COLOR_RGBA2GRAY);
-
-    // Use Canny edge detection
-    let edges = new cv.Mat();
-    cv.Canny(gray, edges, 50, 100, 3, false);
-
-    // Find contours
-    let contours = new cv.MatVector();
-    let hierarchy = new cv.Mat();
-    cv.findContours(
-      edges,
-      contours,
-      hierarchy,
-      cv.RETR_CCOMP,
-      cv.CHAIN_APPROX_SIMPLE
-    );
-
-    // Assuming the largest contour is the document, sort the contours by area and pick the largest one.
-    contours.sort((a, b) => cv.contourArea(b) - cv.contourArea(a));
-    let contour = contours.get(0);
-
-    // Get the bounding rectangle of the largest contour
-    let rect = cv.boundingRect(contour);
-
-    // Crop the image
-    let cropped = gray.roi(rect);
-
-    // Convert the cropped image back to a canvas and get the data URL
-    let croppedCanvas = document.createElement("canvas");
-    cv.imshow(croppedCanvas, cropped);
-    var data = croppedCanvas.toDataURL("image/png");
-
-    // Send the data to the server
-    fetch("upload.php", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+  navigator.mediaDevices
+    .getUserMedia({
+      video: {
+        facingMode: { ideal: "environment" },
       },
-      // Rest of your fetch code...
+    })
+    .then(handleSuccess)
+    .catch((err) => {
+      console.error("Error accessing webcam: ", err);
     });
-  });
-}
 
-// Get all tab links
-var tabLinks = document.getElementsByClassName("tab-link");
-
-for (let i = 0; i < tabLinks.length; i++) {
-  let tabLink = tabLinks[i];
-
-  // Stop the camera and hide the video element when a tab link is clicked
-  tabLink.addEventListener("click", function () {
-    for (let j = 0; j < cameraContainers.length; j++) {
-      let cameraContainer = cameraContainers[j];
-      let video = cameraContainer.getElementsByClassName("video")[0];
-      let stream = video.srcObject;
-      if (stream) {
-        stream.getTracks().forEach(function (track) {
-          track.stop();
-        });
-        video.style.display = "none"; // Hide the video element
-      }
+  video.onloadedmetadata = () => {
+    const maxDimension = Math.min(video.videoWidth, video.videoHeight, 1024); // iOS limit
+    const aspectRatio = video.videoWidth / video.videoHeight;
+    if (video.videoWidth > video.videoHeight) {
+      canvas.width = maxDimension;
+      canvas.height = maxDimension / aspectRatio;
+    } else {
+      canvas.width = maxDimension * aspectRatio;
+      canvas.height = maxDimension;
     }
-  });
-}
+    result.width = canvas.width;
+    result.height = canvas.height;
+  };
+
+  video.onplay = () => {
+    const canvasCtx = canvas.getContext("2d");
+    const resultCtx = result.getContext("2d");
+
+    setInterval(() => {
+      canvasCtx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const resultCanvas = scanner.highlightPaper(canvas);
+      resultCtx.drawImage(resultCanvas, 0, 0, result.width, result.height);
+    }, 100);
+  };
+
+  // Capture functionality
+  canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+  const resultCanvas = scanner.extractPaper(canvas, canvas.width, canvas.height);
+  const dataUrl = resultCanvas.toDataURL();
+  previewImage.src = dataUrl;
+});
+

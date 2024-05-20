@@ -3029,3 +3029,14 @@ p {
   background-color: transparent;
   font-size: large;
 }
+
+#video{
+  display: none;
+}
+#canvas{
+  display: none;
+}
+
+#videoContainer{
+  display: none;
+}
