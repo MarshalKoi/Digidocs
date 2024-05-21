@@ -206,6 +206,7 @@ document.querySelector(".start-camera").addEventListener("click", function () {
         canvasCtx.drawImage(video, 0, 0, canvas.width, canvas.height);
         try {
           const resultCanvas = scanner.highlightPaper(canvas);
+          resultCtx.clearRect(0, 0, result.width, result.height);
           resultCtx.drawImage(resultCanvas, 0, 0, result.width, result.height);
         } catch (e) {
           console.error("Error processing the canvas:", e);
