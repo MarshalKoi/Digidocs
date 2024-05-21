@@ -171,7 +171,7 @@ document.querySelector(".start-camera").addEventListener("click", function () {
   // Wait for the video to be ready
   video.addEventListener("loadedmetadata", () => {
     // Set the canvas dimensions based on the video
-    const aspectRatio = video.videoWidth / video.videoHeight;
+    const aspectRatio = 3 / 4; // Force a 3:4 aspect ratio
     if (video.videoWidth > video.videoHeight) {
       canvas.width = Math.min(video.videoWidth, 1024);
       canvas.height = canvas.width / aspectRatio;
@@ -188,7 +188,7 @@ document.querySelector(".start-camera").addEventListener("click", function () {
     const resultCtx = result.getContext("2d");
 
     const updateCanvasDimensions = () => {
-      const aspectRatio = video.videoWidth / video.videoHeight;
+      const aspectRatio = 3 / 4; // Force a 3:4 aspect ratio
       if (video.videoWidth > video.videoHeight) {
         canvas.width = Math.min(video.videoWidth, 1024);
         canvas.height = canvas.width / aspectRatio;
