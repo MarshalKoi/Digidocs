@@ -3036,11 +3036,12 @@ p {
   height: auto;
   margin: auto;
 }
-#canvas{
-  width: 100% !important;
-  height: auto !important;
+#canvas {
+  width: 75vw !important; /* Adjust this value as needed */
+  height: 100vw !important; /* Adjust this value as needed */
   display: none;
   margin: auto;
+  object-fit: cover; /* This will ensure that the canvas content is resized to fit the container while maintaining its aspect ratio */
 }
 
 #result {
