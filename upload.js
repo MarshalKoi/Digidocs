@@ -159,6 +159,8 @@ document.querySelector(".start-camera").addEventListener("click", function () {
     .getUserMedia({
       video: {
         facingMode: { ideal: "environment" },
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
       },
     })
     .then(handleSuccess)
@@ -168,15 +170,19 @@ document.querySelector(".start-camera").addEventListener("click", function () {
 
   // Wait for the video to be ready
   video.addEventListener("loadedmetadata", () => {
-    // Set the canvas dimensions based on the video
+    // Set the canvas dimensions based on the video and device screen size
     const aspectRatio = video.videoWidth / video.videoHeight;
+    const maxWidth = window.innerWidth;
+    const maxHeight = window.innerHeight;
+
     if (video.videoWidth > video.videoHeight) {
-      canvas.width = Math.min(video.videoWidth, 1024);
+      canvas.width = Math.min(video.videoWidth, maxWidth);
       canvas.height = canvas.width / aspectRatio;
     } else {
-      canvas.height = Math.min(video.videoHeight, 1024);
+      canvas.height = Math.min(video.videoHeight, maxHeight);
       canvas.width = canvas.height * aspectRatio;
     }
+
     result.width = canvas.width;
     result.height = canvas.height;
   });
@@ -187,13 +193,17 @@ document.querySelector(".start-camera").addEventListener("click", function () {
 
     const updateCanvasDimensions = () => {
       const aspectRatio = video.videoWidth / video.videoHeight;
+      const maxWidth = window.innerWidth;
+      const maxHeight = window.innerHeight;
+
       if (video.videoWidth > video.videoHeight) {
-        canvas.width = Math.min(video.videoWidth, 1024);
+        canvas.width = Math.min(video.videoWidth, maxWidth);
         canvas.height = canvas.width / aspectRatio;
       } else {
-        canvas.height = Math.min(video.videoHeight, 1024);
+        canvas.height = Math.min(video.videoHeight, maxHeight);
         canvas.width = canvas.height * aspectRatio;
       }
+
       result.width = canvas.width;
       result.height = canvas.height;
     };
