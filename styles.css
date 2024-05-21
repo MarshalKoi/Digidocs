@@ -3032,9 +3032,18 @@ p {
 
 #video{
   display: none;
+  max-width: 100%;
+  height: auto;
 }
 #canvas{
+  width: 100% !important;
+  height: auto !important;
   display: none;
+}
+
+#result {
+  width: 100% !important;
+  height: auto !important;
 }
 
 #videoContainer{

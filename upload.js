@@ -6,21 +6,21 @@ var uploadIcons = document.getElementsByClassName("upload-icon");
 var fileNameElements = document.getElementsByClassName("file-name");
 
 function setCameraBlockPointerEvents(enabled) {
-  var cameraBlock = document.querySelector('.camera-block');
+  var cameraBlock = document.querySelector(".camera-block");
   if (cameraBlock) {
-    cameraBlock.style.pointerEvents = enabled ? 'auto' : 'none';
+    cameraBlock.style.pointerEvents = enabled ? "auto" : "none";
   }
 }
 
 function isCameraActive() {
-  var cameraBlock = document.querySelector('.camera-block');
+  var cameraBlock = document.querySelector(".camera-block");
   // Replace the condition below with your actual condition to check if the camera is active
-  return cameraBlock && cameraBlock.style.pointerEvents === 'none';
+  return cameraBlock && cameraBlock.style.pointerEvents === "none";
 }
 
 var isCameraActive = false;
 
-var cameraBlock = document.querySelector('.camera-block');
+var cameraBlock = document.querySelector(".camera-block");
 cameraBlock.addEventListener("click", function () {
   // Set isCameraActive to true when the camera block is clicked
   isCameraActive = true;
@@ -112,16 +112,16 @@ window.addEventListener("DOMContentLoaded", (event) => {
 
   fileInput.addEventListener("change", function () {
     if (this.files && this.files[0]) {
-        fileNameElement.textContent = this.files[0].name;
-        removeFileButton.style.display = "block";
-        uploadIcon.style.display = "none";
-        urlInput.disabled = true;
+      fileNameElement.textContent = this.files[0].name;
+      removeFileButton.style.display = "block";
+      uploadIcon.style.display = "none";
+      urlInput.disabled = true;
     } else {
-        // If no file is selected, hide the removeFileButton
-        removeFileButton.style.display = "none";
-        uploadIcon.style.display = "block";
-        urlInput.disabled = false;
-        setCameraBlockPointerEvents(true);
+      // If no file is selected, hide the removeFileButton
+      removeFileButton.style.display = "none";
+      uploadIcon.style.display = "block";
+      urlInput.disabled = false;
+      setCameraBlockPointerEvents(true);
     }
   });
 
@@ -137,15 +137,15 @@ window.addEventListener("DOMContentLoaded", (event) => {
 });
 
 //camera script
-document.querySelector('.start-camera').addEventListener('click', function () {
-  document.getElementById('videoContainer').style.display = 'block';
+document.querySelector(".start-camera").addEventListener("click", function () {
+  document.getElementById("videoContainer").style.display = "block";
 
   const scanner = new jscanify();
   const canvas = document.getElementById("canvas");
   const result = document.getElementById("result");
   const video = document.getElementById("video");
-  const captureButton = document.getElementById('capture');
-  const previewImage = document.getElementById('preview');
+  const captureButton = document.getElementById("capture");
+  const previewImage = document.getElementById("preview");
 
   function handleSuccess(stream) {
     video.srcObject = stream;
@@ -166,41 +166,68 @@ document.querySelector('.start-camera').addEventListener('click', function () {
       console.error("Error accessing webcam: ", err);
     });
 
-
+  // Wait for the video to be ready
+  video.addEventListener("loadedmetadata", () => {
+    // Set the canvas dimensions based on the video
+    const aspectRatio = video.videoWidth / video.videoHeight;
+    if (video.videoWidth > video.videoHeight) {
+      canvas.width = Math.min(video.videoWidth, 1024);
+      canvas.height = canvas.width / aspectRatio;
+    } else {
+      canvas.height = Math.min(video.videoHeight, 1024);
+      canvas.width = canvas.height * aspectRatio;
+    }
+    result.width = canvas.width;
+    result.height = canvas.height;
+  });
 
   video.onplay = () => {
     const canvasCtx = canvas.getContext("2d");
     const resultCtx = result.getContext("2d");
-  
-    setInterval(() => {
-      // Set canvas dimensions to match video dimensions and maintain aspect ratio
-      const maxDimension = Math.min(video.videoWidth, video.videoHeight, 1024); // iOS limit
+
+    const updateCanvasDimensions = () => {
       const aspectRatio = video.videoWidth / video.videoHeight;
       if (video.videoWidth > video.videoHeight) {
-        canvas.width = maxDimension;
-        canvas.height = maxDimension / aspectRatio;
+        canvas.width = Math.min(video.videoWidth, 1024);
+        canvas.height = canvas.width / aspectRatio;
       } else {
-        canvas.width = maxDimension * aspectRatio;
-        canvas.height = maxDimension;
+        canvas.height = Math.min(video.videoHeight, 1024);
+        canvas.width = canvas.height * aspectRatio;
       }
       result.width = canvas.width;
       result.height = canvas.height;
-  
-      // Draw video to canvas
-      canvasCtx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const resultCanvas = scanner.highlightPaper(canvas);
-      resultCtx.drawImage(resultCanvas, 0, 0, result.width, result.height);
+    };
+
+    updateCanvasDimensions();
+
+    setInterval(() => {
+      // Draw video to canvas only if video is ready
+      if (video.videoWidth > 0 && video.videoHeight > 0) {
+        canvasCtx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        try {
+          const resultCanvas = scanner.highlightPaper(canvas);
+          resultCtx.drawImage(resultCanvas, 0, 0, result.width, result.height);
+        } catch (e) {
+          console.error("Error processing the canvas:", e);
+        }
+      }
     }, 100);
+
+    // Handle window resize to update canvas dimensions
+    window.addEventListener("resize", updateCanvasDimensions);
   };
 
   // Capture functionality
-  canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-  const resultCanvas = scanner.extractPaper(canvas, canvas.width, canvas.height);
+  canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
+  const resultCanvas = scanner.extractPaper(
+    canvas,
+    canvas.width,
+    canvas.height
+  );
   const dataUrl = resultCanvas.toDataURL();
   previewImage.src = dataUrl;
 });
 
-
-document.getElementById('cancel').addEventListener('click', function () {
+document.getElementById("cancel").addEventListener("click", function () {
   location.reload();
 });
