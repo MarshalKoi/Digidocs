@@ -102,7 +102,7 @@
                       <video id="video"></video>
                       <canvas id="canvas"></canvas>
                       <button id="cancel" type="button" style="display: block; margin: auto;"  class="button-2 is-upload">Cancel</button>
-                      <img id="preview" style="display: block; margin: auto;"/>
+                      <img id="preview" style="display: block; margin: auto;" data-endpoint="http://localhost:8000/layout/predict-by-file" data-method="POST"/>
                     </div>
                     <img class="start-camera" src="./camera-svgrepo-com.svg" alt="Start Camera"
                       style="cursor: pointer; width: 20%;" />
@@ -153,7 +153,7 @@
     type="text/javascript" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
     crossorigin="anonymous"></script>
   <script src="./script.js" type="text/javascript"></script>
-  <script src="./upload.js" type="text/javascript"></script>
+  <script src="./upload.js" type="module"></script>
   <script src="./API.js" type="text/javascript"></script>
   <script src="./loadingscreen.js" type="text/javascript"></script>
   <script src="https://docs.opencv.org/4.7.0/opencv.js" async></script>

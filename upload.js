@@ -12,18 +12,19 @@ function setCameraBlockPointerEvents(enabled) {
   }
 }
 
-function isCameraActive() {
+let isCameraActive = false;
+
+function checkAndSetCameraActive() {
   var cameraBlock = document.querySelector(".camera-block");
   // Replace the condition below with your actual condition to check if the camera is active
-  return cameraBlock && cameraBlock.style.pointerEvents === "none";
+  isCameraActive = cameraBlock && cameraBlock.style.pointerEvents === "none";
+  return isCameraActive;
 }
-
-var isCameraActive = false;
 
 var cameraBlock = document.querySelector(".camera-block");
 cameraBlock.addEventListener("click", function () {
   // Set isCameraActive to true when the camera block is clicked
-  isCameraActive = true;
+  checkAndSetCameraActive();
 
   // Disable the file and URL inputs
   for (let i = 0; i < fileInputs.length; i++) {
@@ -228,7 +229,7 @@ document.querySelector(".start-camera").addEventListener("click", function () {
     canvas.height
   );
   const dataUrl = resultCanvas.toDataURL();
-  previewImage.src = dataUrl;
+  previewImage.src = dataUrl; // Use Blob URL for the preview imag
 });
 
 document.getElementById("cancel").addEventListener("click", function () {
