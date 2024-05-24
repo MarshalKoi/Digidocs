@@ -12540,20 +12540,22 @@
             afterSubmit(data);
             return;
           }
-          $.ajax({
-            url: formUrl,
-            type: "POST",
-            data: payload,
-            dataType: "json",
-            crossDomain: true
-          }).done(function(response) {
-            if (response && response.code === 200) {
-              data.success = true;
-            }
-            afterSubmit(data);
-          }).fail(function() {
-            afterSubmit(data);
-          });
+          // $.ajax({
+          //   url: formUrl,
+          //   type: "POST",
+          //   data: payload,
+          //   dataType: "json",
+          //   crossDomain: true
+          // }).done(function(response) {
+          //   if (response && response.code === 200) {
+          //     data.success = true;
+          //   }
+          //   afterSubmit(data);
+          // }).fail(function() {
+          //   afterSubmit(data);
+          // });
+          data.success = true;
+          afterSubmit(data);
         };
       }
     }

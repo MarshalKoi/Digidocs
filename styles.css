@@ -3065,3 +3065,8 @@ p {
   text-align: center;
   height: 100%;
 }
+
+#api-output-container {
+  display: flex;
+  flex-direction: column;
+}
