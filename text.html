@@ -82,9 +82,9 @@
                         <p class="file-name"></p>
                         <button type="button" class="remove-file" style="display: none;">x</button>
                       </div>
-                      <input type="file" name="file" class="file" accept=".jpg, .png" style="display: none;" data-endpoint="http://13.229.135.48:8000/ocr/predict-by-file" data-method="POST">
+                      <input type="file" name="file" class="file" accept=".jpg, .png" style="display: none;" data-endpoint="http://localhost:8000/ocr/predict-by-file" data-method="POST">
                     </div>
-                    <input class="text-field w-input url" maxlength="256" name="url" data-name="URL 3" data-endpoint="http://13.229.135.48:8000/ocr/predict-by-url" data-method="GET"
+                    <input class="text-field w-input url" maxlength="256" name="url" data-name="URL 3" data-endpoint="http://localhost:8000/ocr/predict-by-url" data-method="GET"
                       placeholder="Input image URL" pattern="https?://.+(\.jpg|\.png)$" type="url"/>
                   </div>
                   <div class="display-flex is-space-between padding-horizontal padding-medium">
@@ -102,7 +102,7 @@
                       <video id="video"></video>
                       <canvas id="canvas"></canvas>
                       <button id="cancel" type="button" style="display: block; margin: auto;"  class="button-2 is-upload">Cancel</button>
-                      <img id="preview" style="display: block; margin: auto;" data-endpoint="http://13.229.135.48:8000/layout/predict-by-file" data-method="POST"/>
+                      <img id="preview" style="display: block; margin: auto;" data-endpoint="http://localhost:8000/layout/predict-by-file" data-method="POST"/>
                     </div>
                     <img class="start-camera" src="./camera-svgrepo-com.svg" alt="Start Camera"
                       style="cursor: pointer; width: 20%;" />
