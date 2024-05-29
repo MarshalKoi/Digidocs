@@ -221,39 +221,47 @@ document.querySelector(".start-camera").addEventListener("click", function () {
     window.addEventListener("resize", updateCanvasDimensions);
   };
 
-  // Capture functionality
-  canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
-  const resultCanvas = scanner.extractPaper(
-    canvas,
-    canvas.width,
-    canvas.height
-  );
+// Capture functionality
+let ctx = canvas.getContext("2d");
+ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+const resultCanvas = scanner.extractPaper(
+  canvas,
+  canvas.width,
+  canvas.height
+);
 
-  // Image Normalization
-  for(let i = 0; i < data.length; i += 4) {
-    data[i] /= 255; // Red
-    data[i + 1] /= 255; // Green
-    data[i + 2] /= 255; // Blue
+// Get image data
+let imageData = ctx.getImageData(0, 0, resultCanvas.width, resultCanvas.height);
+let data = imageData.data;
+
+// Image Normalization
+for(let i = 0; i < data.length; i += 4) {
+  data[i] /= 255; // Red
+  data[i + 1] /= 255; // Green
+  data[i + 2] /= 255; // Blue
+}
+
+// Define radius
+let radius = 5;
+
+// Noise Reduction (using a simple box blur)
+let copy = new Uint8ClampedArray(data);
+for(let i = 0; i < data.length; i += 4) {
+  let sumR = 0, sumG = 0, sumB = 0, count = 0;
+  for(let j = Math.max(0, i - 4 * radius); j < Math.min(data.length, i + 4 * radius); j += 4) {
+    sumR += copy[j];
+    sumG += copy[j + 1];
+    sumB += copy[j + 2];
+    count++;
   }
+  data[i] = sumR / count;
+  data[i + 1] = sumG / count;
+  data[i + 2] = sumB / count;
+}
 
-  // Noise Reduction (using a simple box blur)
-  let copy = new Uint8ClampedArray(data);
-  for(let i = 0; i < data.length; i += 4) {
-    let sumR = 0, sumG = 0, sumB = 0, count = 0;
-    for(let j = Math.max(0, i - 4 * radius); j < Math.min(data.length, i + 4 * radius); j += 4) {
-      sumR += copy[j];
-      sumG += copy[j + 1];
-      sumB += copy[j + 2];
-      count++;
-    }
-    data[i] = sumR / count;
-    data[i + 1] = sumG / count;
-    data[i + 2] = sumB / count;
-  }
-
-  ctx.putImageData(imageData, 0, 0);
-    const dataUrl = resultCanvas.toDataURL();
-    previewImage.src = dataUrl; // Use Blob URL for the preview imag
+ctx.putImageData(imageData, 0, 0);
+const dataUrl = resultCanvas.toDataURL();
+previewImage.src = dataUrl; // Use Blob URL for the preview image
 });
 
 document.getElementById("cancel").addEventListener("click", function () {
