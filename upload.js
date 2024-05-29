@@ -234,23 +234,28 @@ const resultCanvas = scanner.extractPaper(
 let resultCtx = resultCanvas.getContext("2d");
 let imageData = resultCtx.getImageData(0, 0, resultCanvas.width, resultCanvas.height);
 
-// Binarization
-let binaryImageData = resultCtx.createImageData(resultCanvas.width, resultCanvas.height);
-let threshold = 128; // You can adjust this value to get the best result
+// Convert ImageData to cv.Mat
+let src = cv.matFromImageData(imageData);
 
-for (let i = 0; i < imageData.data.length; i += 4) {
-  let brightness = 0.34 * imageData.data[i] + 0.5 * imageData.data[i + 1] + 0.16 * imageData.data[i + 2];
-  let binaryColor = brightness > threshold ? 255 : 0;
+// Create empty Mat for output
+let dst = new cv.Mat();
 
-  binaryImageData.data[i] = binaryColor;     // Red
-  binaryImageData.data[i + 1] = binaryColor; // Green
-  binaryImageData.data[i + 2] = binaryColor; // Blue
-  binaryImageData.data[i + 3] = 255;         // Alpha
-}
+// Adjust brightness and contrast
+let alpha = 1.5; // Contrast control (1.0-3.0)
+let beta = 50; // Brightness control (0-100)
 
-resultCtx.putImageData(binaryImageData, 0, 0);
+// Perform the operation new_image(i,j) = alpha*image(i,j) + beta
+src.convertTo(dst, -1, alpha, beta);
+
+// Convert cv.Mat back to ImageData
+let outputImageData = new ImageData(new Uint8ClampedArray(dst.data), dst.cols, dst.rows);
+
+// Put the image data back onto the canvas
+resultCtx.putImageData(outputImageData, 0, 0);
+
 const dataUrl = resultCanvas.toDataURL();
 previewImage.src = dataUrl; // Use Blob URL for the preview image
+
 });
 
 document.getElementById("cancel").addEventListener("click", function () {
