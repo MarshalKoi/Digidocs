@@ -237,18 +237,28 @@ let imageData = resultCtx.getImageData(0, 0, resultCanvas.width, resultCanvas.he
 // Convert ImageData to cv.Mat
 let src = cv.matFromImageData(imageData);
 
-// Create empty Mat for output
-let dst = new cv.Mat();
+// Convert to grayscale
+let gray = new cv.Mat();
+cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
 
-// Adjust brightness and contrast
-let alpha = 1.5; // Contrast control (1.0-3.0)
-let beta = 35; // Brightness control (0-100)
+// Apply CLAHE
+let clahe = new cv.CLAHE();
+clahe.setClipLimit(4);
+let claheImage = new cv.Mat();
+clahe.apply(gray, claheImage);
 
-// Perform the operation new_image(i,j) = alpha*image(i,j) + beta
-src.convertTo(dst, -1, alpha, beta);
+// Sharpen
+let sharpened = new cv.Mat();
+let kernel = cv.Mat.eye(3, 3, cv.CV_32FC1);
+kernel.data32F[4] = -1;
+cv.filter2D(claheImage, sharpened, cv.CV_8U, kernel);
+
+// Convert grayscale cv.Mat back to color before converting to ImageData
+let color = new cv.Mat();
+cv.cvtColor(sharpened, color, cv.COLOR_GRAY2RGBA, 0);
 
 // Convert cv.Mat back to ImageData
-let outputImageData = new ImageData(new Uint8ClampedArray(dst.data), dst.cols, dst.rows);
+let outputImageData = new ImageData(new Uint8ClampedArray(color.data), color.cols, color.rows);
 
 // Put the image data back onto the canvas
 resultCtx.putImageData(outputImageData, 0, 0);
