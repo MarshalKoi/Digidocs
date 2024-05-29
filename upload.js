@@ -230,36 +230,25 @@ const resultCanvas = scanner.extractPaper(
   canvas.height
 );
 
-// Get image data
-let imageData = ctx.getImageData(0, 0, resultCanvas.width, resultCanvas.height);
-let data = imageData.data;
+// Get context and image data from resultCanvas
+let resultCtx = resultCanvas.getContext("2d");
+let imageData = resultCtx.getImageData(0, 0, resultCanvas.width, resultCanvas.height);
 
-// Image Normalization
-for(let i = 0; i < data.length; i += 4) {
-  data[i] /= 255; // Red
-  data[i + 1] /= 255; // Green
-  data[i + 2] /= 255; // Blue
+// Binarization
+let binaryImageData = resultCtx.createImageData(resultCanvas.width, resultCanvas.height);
+let threshold = 128; // You can adjust this value to get the best result
+
+for (let i = 0; i < imageData.data.length; i += 4) {
+  let brightness = 0.34 * imageData.data[i] + 0.5 * imageData.data[i + 1] + 0.16 * imageData.data[i + 2];
+  let binaryColor = brightness > threshold ? 255 : 0;
+
+  binaryImageData.data[i] = binaryColor;     // Red
+  binaryImageData.data[i + 1] = binaryColor; // Green
+  binaryImageData.data[i + 2] = binaryColor; // Blue
+  binaryImageData.data[i + 3] = 255;         // Alpha
 }
 
-// Define radius
-let radius = 5;
-
-// Noise Reduction (using a simple box blur)
-let copy = new Uint8ClampedArray(data);
-for(let i = 0; i < data.length; i += 4) {
-  let sumR = 0, sumG = 0, sumB = 0, count = 0;
-  for(let j = Math.max(0, i - 4 * radius); j < Math.min(data.length, i + 4 * radius); j += 4) {
-    sumR += copy[j];
-    sumG += copy[j + 1];
-    sumB += copy[j + 2];
-    count++;
-  }
-  data[i] = sumR / count;
-  data[i + 1] = sumG / count;
-  data[i + 2] = sumB / count;
-}
-
-ctx.putImageData(imageData, 0, 0);
+resultCtx.putImageData(binaryImageData, 0, 0);
 const dataUrl = resultCanvas.toDataURL();
 previewImage.src = dataUrl; // Use Blob URL for the preview image
 });
