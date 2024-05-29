@@ -241,30 +241,46 @@ let src = cv.matFromImageData(imageData);
 let gray = new cv.Mat();
 cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
 
-// Apply CLAHE
-let clahe = new cv.CLAHE();
-clahe.setClipLimit(4);
-let claheImage = new cv.Mat();
-clahe.apply(gray, claheImage);
+// Equalize histogram
+let equalized = new cv.Mat();
+cv.equalizeHist(gray, equalized);
 
-// Sharpen
+// Convert back to color
+let colorEqualized = new cv.Mat();
+cv.cvtColor(equalized, colorEqualized, cv.COLOR_GRAY2RGBA, 0);
+
+// Create empty Mat for output
+let dst = new cv.Mat();
+
+// Adjust brightness and contrast
+let alpha = 2.5; // Contrast control (1.0-3.0)
+let beta = 70; // Brightness control (0-100)
+
+// Perform the operation new_image(i,j) = alpha*image(i,j) + beta
+src.convertTo(dst, -1, alpha, beta);
+
+// Create sharpening kernel
+let kernel = cv.matFromArray(3, 3, cv.CV_32F, [
+    -1, -1, -1,
+    -1, 9, -1,
+    -1, -1, -1
+]);
+
+// Apply the sharpening kernel
 let sharpened = new cv.Mat();
-let kernel = cv.Mat.eye(3, 3, cv.CV_32FC1);
-kernel.data32F[4] = -1;
-cv.filter2D(claheImage, sharpened, cv.CV_8U, kernel);
-
-// Convert grayscale cv.Mat back to color before converting to ImageData
-let color = new cv.Mat();
-cv.cvtColor(sharpened, color, cv.COLOR_GRAY2RGBA, 0);
+cv.filter2D(dst, sharpened, cv.CV_8U, kernel);
 
 // Convert cv.Mat back to ImageData
-let outputImageData = new ImageData(new Uint8ClampedArray(color.data), color.cols, color.rows);
+let outputImageData = new ImageData(new Uint8ClampedArray(sharpened.data), sharpened.cols, sharpened.rows);
 
 // Put the image data back onto the canvas
 resultCtx.putImageData(outputImageData, 0, 0);
 
 const dataUrl = resultCanvas.toDataURL();
 previewImage.src = dataUrl; // Use Blob URL for the preview image
+
+// Clean up
+src.delete(); dst.delete(); kernel.delete(); sharpened.delete();
 
 });
 
