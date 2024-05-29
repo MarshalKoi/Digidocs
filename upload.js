@@ -229,16 +229,26 @@ document.querySelector(".start-camera").addEventListener("click", function () {
     canvas.height
   );
 
-  // Binarize the image
-  let ctx = resultCanvas.getContext('2d');
-  let imageData = ctx.getImageData(0, 0, resultCanvas.width, resultCanvas.height);
-  let data = imageData.data;
-  let threshold = 128; // You can adjust this value
-
+  // Image Normalization
   for(let i = 0; i < data.length; i += 4) {
-    let grayscale = 0.3 * data[i] + 0.59 * data[i + 1] + 0.11 * data[i + 2];
-    let binaryColor = grayscale < threshold ? 0 : 255;
-    data[i] = data[i + 1] = data[i + 2] = binaryColor;
+    data[i] /= 255; // Red
+    data[i + 1] /= 255; // Green
+    data[i + 2] /= 255; // Blue
+  }
+
+  // Noise Reduction (using a simple box blur)
+  let copy = new Uint8ClampedArray(data);
+  for(let i = 0; i < data.length; i += 4) {
+    let sumR = 0, sumG = 0, sumB = 0, count = 0;
+    for(let j = Math.max(0, i - 4 * radius); j < Math.min(data.length, i + 4 * radius); j += 4) {
+      sumR += copy[j];
+      sumG += copy[j + 1];
+      sumB += copy[j + 2];
+      count++;
+    }
+    data[i] = sumR / count;
+    data[i + 1] = sumG / count;
+    data[i + 2] = sumB / count;
   }
 
   ctx.putImageData(imageData, 0, 0);
