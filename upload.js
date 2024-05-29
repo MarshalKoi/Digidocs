@@ -228,8 +228,22 @@ document.querySelector(".start-camera").addEventListener("click", function () {
     canvas.width,
     canvas.height
   );
-  const dataUrl = resultCanvas.toDataURL();
-  previewImage.src = dataUrl; // Use Blob URL for the preview imag
+
+  // Binarize the image
+  let ctx = resultCanvas.getContext('2d');
+  let imageData = ctx.getImageData(0, 0, resultCanvas.width, resultCanvas.height);
+  let data = imageData.data;
+  let threshold = 128; // You can adjust this value
+
+  for(let i = 0; i < data.length; i += 4) {
+    let grayscale = 0.3 * data[i] + 0.59 * data[i + 1] + 0.11 * data[i + 2];
+    let binaryColor = grayscale < threshold ? 0 : 255;
+    data[i] = data[i + 1] = data[i + 2] = binaryColor;
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+    const dataUrl = resultCanvas.toDataURL();
+    previewImage.src = dataUrl; // Use Blob URL for the preview imag
 });
 
 document.getElementById("cancel").addEventListener("click", function () {
