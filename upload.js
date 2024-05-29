@@ -241,8 +241,8 @@ let src = cv.matFromImageData(imageData);
 let dst = new cv.Mat();
 
 // Adjust brightness and contrast
-let alpha = 1.5; // Contrast control (1.0-3.0)
-let beta = 50; // Brightness control (0-100)
+let alpha = 1; // Contrast control (1.0-3.0)
+let beta = 30; // Brightness control (0-100)
 
 // Perform the operation new_image(i,j) = alpha*image(i,j) + beta
 src.convertTo(dst, -1, alpha, beta);
