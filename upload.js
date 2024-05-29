@@ -253,7 +253,7 @@ cv.cvtColor(equalized, colorEqualized, cv.COLOR_GRAY2RGBA, 0);
 let dst = new cv.Mat();
 
 // Adjust brightness and contrast
-let alpha = 2.5; // Contrast control (1.0-3.0)
+let alpha = 1; // Contrast control (1.0-3.0)
 let beta = 70; // Brightness control (0-100)
 
 // Perform the operation new_image(i,j) = alpha*image(i,j) + beta
