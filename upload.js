@@ -241,31 +241,6 @@ let src = cv.matFromImageData(imageData);
 let gray = new cv.Mat();
 cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY, 0);
 
-// Threshold the image
-let binary = new cv.Mat();
-cv.threshold(gray, binary, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU);
-
-// Find contours
-let contours = new cv.MatVector();
-let hierarchy = new cv.Mat();
-cv.findContours(binary, contours, hierarchy, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE);
-
-// Find the skew angle
-let angle = 0;
-for (let i = 0; i < contours.size(); ++i) {
-  let cnt = contours.get(i);
-  let rect = cv.minAreaRect(cnt);
-  if (rect.size.width > binary.cols / 2 && rect.size.height > binary.rows / 2) {
-    angle = rect.angle;
-    break;
-  }
-}
-
-// Rotate the image
-let M = cv.getRotationMatrix2D(new cv.Point(binary.cols / 2, binary.rows / 2), angle, 1);
-let deskewed = new cv.Mat();
-cv.warpAffine(src, deskewed, M, new cv.Size(binary.cols, binary.rows));
-
 // Equalize histogram
 let equalized = new cv.Mat();
 cv.equalizeHist(gray, equalized);
