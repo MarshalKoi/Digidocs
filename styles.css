@@ -3030,12 +3030,33 @@ p {
   font-size: large;
 }
 
-#video{
-  display: none;
-  max-width: 100%;
-  height: auto;
-  margin: auto;
+#video {
+  visibility: hidden;
+  display: block;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 }
+
+#videoContainer {
+  position: relative; /* This makes it the reference for absolute positioning of child elements */
+  width: 100%;
+  height: auto;
+}
+
+#video-table {
+  position: relative; /* This positions the element relative to the nearest positioned ancestor, which is #videoContainer */
+  z-index: 1; /* This ensures that the video-table is displayed behind the boundingBoxCanvas */
+}
+
+#boundingBoxCanvas {
+  position: absolute; /* This positions the element relative to the nearest positioned ancestor, which is #videoContainer */
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 2; /* This ensures that the canvas is displayed on top of the video-table */
+}
+
 #canvas {
   width: 75vw !important; /* Adjust this value as needed */
   height: 100vw !important; /* Adjust this value as needed */
