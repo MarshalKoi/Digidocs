@@ -155,7 +155,7 @@ const startCameraButton = document.querySelector(".start-camera");
 
 startCameraButton.addEventListener("click", async () => {
   if (isVideoFeedActive()) {
-    videoElement.removeAttribute("controls");
+
     // Clear existing images
     const capturedImagesContainer = document.getElementById("capturedImagesContainer");
     while (capturedImagesContainer.firstChild) {
