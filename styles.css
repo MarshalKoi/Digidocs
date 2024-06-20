@@ -3091,3 +3091,8 @@ p {
   display: flex;
   flex-direction: column;
 }
+
+#xlsx-preview-box {
+  color: #000000; /* Change text color */
+  padding: 20px;
+}

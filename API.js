@@ -73,10 +73,12 @@ form.addEventListener("submit", async (event) => {
       // If it's the table page, handle the response as a .zip file
       link.download = "document.zip";
       link.textContent = `Download document.zip`;
+      await previewXLSXFiles(blob);
     } else {
       // If it's not the table page, handle the response as a .docx file
       link.download = "document.docx";
       link.textContent = `Download document.docx`;
+      await previewDOCXFiles(blob);
     }
 
     outputContainer.innerHTML = ""; // Clear previous output
@@ -84,32 +86,58 @@ form.addEventListener("submit", async (event) => {
   } else {
     console.error("Error:", response.statusText);
   }
-
-  // // Check if the request was successful
-  // if (response.ok) {
-  //   // Parse the JSON response
-  //   const result = await response.json();
-
-  //   // Extract the file information
-  //   const docxFilePath = result.file;
-  //   const filename = result.filename;
-
-  //   // Create a URL for the .docx document
-  //   const url = URL.createObjectURL(
-  //     new Blob([docxFilePath], {
-  //       type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  //     })
-  //   );
-
-  //   // Output the .docx document to the api-output-container
-  //   const outputContainer = document.querySelector("#api-output-container");
-  //   const link = document.createElement("a");
-  //   link.href = url;
-  //   link.download = filename;
-  //   link.textContent = `Download ${filename}`;
-  //   outputContainer.innerHTML = ""; // Clear previous output
-  //   outputContainer.appendChild(link);
-  // } else {
-  //   console.error("Error:", response.statusText);
-  // }
 });
+
+async function previewXLSXFiles(blob) {
+  const zip = await JSZip.loadAsync(blob);
+  const previewBox = document.getElementById('xlsx-preview-box');
+  // Clear existing previews
+  previewBox.innerHTML = "";
+  zip.forEach(async (relativePath, file) => {
+    if (relativePath.endsWith('.xlsx')) {
+      const arrayBuffer = await file.async('arraybuffer');
+      const workbook = XLSX.read(arrayBuffer, {type: 'buffer'});
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+
+      // Convert the worksheet to JSON, slice to the first 6 rows, and convert back to a worksheet
+      const rows = XLSX.utils.sheet_to_json(worksheet, {header:1}).slice(0, 6);
+      const newWorksheet = XLSX.utils.aoa_to_sheet(rows);
+      const htmlStr = XLSX.utils.sheet_to_html(newWorksheet);
+
+      // Create a container for the preview content
+      const previewContent = document.createElement('div');
+      previewContent.innerHTML = htmlStr;
+
+      // Set padding and table border styles for the preview content
+      previewContent.style.padding = "10px";
+      previewContent.querySelector('table').style.borderCollapse = "collapse";
+      previewContent.querySelectorAll('td, th').forEach(cell => {
+        cell.style.border = "1px solid black";
+        cell.style.padding = "0 10px";
+      });
+
+      // Append the preview content without replacing the entire innerHTML
+      previewBox.appendChild(previewContent);
+    }
+  });
+}
+
+async function previewDOCXFiles(docxBlob) {
+  try {
+    // Convert the DOCX Blob to an ArrayBuffer for mammoth.js
+    const arrayBuffer = await docxBlob.arrayBuffer();
+
+    // Use mammoth.js to convert the DOCX ArrayBuffer to HTML
+    const result = await mammoth.convertToHtml({arrayBuffer: arrayBuffer});
+
+    // The generated HTML
+    const html = result.value;
+
+    // Display the HTML in your preview container
+    const previewBox = document.getElementById('docx-preview-box');
+    previewBox.innerHTML = html;
+  } catch (error) {
+    console.error('Error processing DOCX file:', error);
+  }
+}

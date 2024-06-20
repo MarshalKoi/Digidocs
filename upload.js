@@ -146,7 +146,7 @@ document.querySelector(".start-camera").addEventListener("click", function () {
   const result = document.getElementById("result");
   const video = document.getElementById("video");
   const captureButton = document.getElementById("capture");
-  const previewImage = document.getElementById("preview");
+  const previewImage = document.getElementById("preview-img");
 
   function handleSuccess(stream) {
     video.srcObject = stream;
