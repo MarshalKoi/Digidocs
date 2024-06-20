@@ -8,7 +8,7 @@ form.addEventListener("submit", async (event) => {
   // Get the input elements
   const inputFile = document.querySelector('input[type="file"]');
   const inputUrl = document.querySelector('input[type="url"]');
-  const previewImg = document.querySelector("#preview");
+  const previewImg = document.querySelector("#preview-img");
 
   // Create a new FormData instance
   const formData = new FormData();

@@ -96,11 +96,12 @@
                     style="margin-top: 5%;">
                     Or use a camera instead
                   </div>
+                  <div class="text-color-gray">Try to capture only one table image at a time</div>
                   <div class="camera-block" class="vertical-align">
                     <div id="videoContainer" style="vertical-align: auto;">
                       <video id="video-table" autoplay playsinline muted></video>
                       <canvas id="boundingBoxCanvas"></canvas>
-                      <div id="capturedImagesContainer"></div>
+                      <div id="preview-img" data-endpoint="http://localhost:8000/table/predict-by-file-zip" data-method="POST"></div>
                       <button id="cancel" type="button" style="display: block; margin: auto;"  class="button-2 is-upload">Cancel</button>
                     </div>
                     <img class="start-camera" src="./camera-svgrepo-com.svg" alt="Start Camera"
