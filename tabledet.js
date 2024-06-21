@@ -153,149 +153,97 @@ const boundingBoxCanvas = document.getElementById("boundingBoxCanvas");
 const boundingBoxCtx = boundingBoxCanvas.getContext("2d");
 const startCameraButton = document.querySelector(".start-camera");
 
-async function initializeCamera() {
-  try {
-    document.getElementById("videoContainer").style.display = "block";
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        facingMode: { ideal: "environment" },
-        height: { exact: 480 },
-        width: { exact: 640 },
-      },
-    });
-    videoElement.srcObject = stream;
-    videoElement.onloadedmetadata = () => {
+startCameraButton.addEventListener("click", async () => {
+  if (isVideoFeedActive()) {
+
+    // Clear existing images
+    const capturedImagesContainer = document.getElementById("preview-img");
+    while (capturedImagesContainer.firstChild) {
+      capturedImagesContainer.removeChild(capturedImagesContainer.firstChild);
+    }
+
+    // If the camera is active, perform the capture functionality
+    const videoElement = document.getElementById("video-table");
     const canvas = document.createElement("canvas");
     canvas.width = videoElement.videoWidth;
     canvas.height = videoElement.videoHeight;
+    const ctx = canvas.getContext("2d");
 
-      videoElement.play();
-      startDetectionLoop();
-    };
-  } catch (error) {
-    console.error("Error accessing camera:", error);
-  }
-}
-
-async function startDetectionLoop() {
-  const videoElement = document.getElementById("video-table");
-  const canvas = document.createElement("canvas");
-  canvas.width = videoElement.videoWidth;
-  canvas.height = videoElement.videoHeight;
-  const ctx = canvas.getContext("2d");
-
-  const detectFrame = async () => {
     ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-    const imageBlob = await new Promise((resolve) =>
-      canvas.toBlob(resolve, "image/jpeg")
-    );
-    const boxes = await detect_objects_on_image(imageBlob);
-    draw_image_and_boxes(imageBlob, boxes);
 
-    requestAnimationFrame(detectFrame); // Detect objects in the next frame
-  };
-
-  detectFrame(); // Start detecting objects in frames
-}
-
-async function captureContent() {
-  const videoElement = document.getElementById("video-table");
-  const canvas = document.createElement("canvas");
-  canvas.width = videoElement.videoWidth;
-  canvas.height = videoElement.videoHeight;
-  const ctx = canvas.getContext("2d");
-
-  ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-
-  const boxes = await detect_objects_on_image(
-    await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg"))
-  );
-
-  boxes.forEach(([x1, y1, x2, y2]) => {
-    const captureCanvas = document.createElement("canvas");
-    captureCanvas.width = x2 - x1;
-    captureCanvas.height = y2 - y1;
-    const captureCtx = captureCanvas.getContext("2d");
-
-    captureCtx.drawImage(
-      canvas,
-      x1,
-      y1,
-      x2 - x1,
-      y2 - y1,
-      0,
-      0,
-      x2 - x1,
-      y2 - y1
+    const boxes = await detect_objects_on_image(
+      await new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg"))
     );
 
-    const capturedImageDataURL = captureCanvas.toDataURL("image/jpeg");
-    const imgElement = document.createElement("img");
-    imgElement.src = capturedImageDataURL;
-    imgElement.style.margin = "10px";
+    boxes.forEach(([x1, y1, x2, y2]) => {
+      const captureCanvas = document.createElement("canvas");
+      captureCanvas.width = x2 - x1;
+      captureCanvas.height = y2 - y1;
+      const captureCtx = captureCanvas.getContext("2d");
 
-    document.getElementById("capturedImagesContainer").appendChild(imgElement);
-  });
-}
+      captureCtx.drawImage(
+        canvas,
+        x1,
+        y1,
+        x2 - x1,
+        y2 - y1,
+        0,
+        0,
+        x2 - x1,
+        y2 - y1
+      );
 
-startCameraButton.addEventListener("click", () => {
-  if (!isCameraActive) {
-    initializeCamera();
-    isCameraActive = true;
+      const capturedImageDataURL = captureCanvas.toDataURL("image/jpeg");
+      const imgElement = document.createElement("img");
+      imgElement.src = capturedImageDataURL;
+      imgElement.style.margin = "10px";
+  
+      document.getElementById("capturedImagesContainer").appendChild(imgElement);
+    });
   } else {
-    captureContent();
+    // If the camera is not active, start the camera
+    document.getElementById("videoContainer").style.display = "block";
+
+    navigator.mediaDevices
+      .getUserMedia({
+        video: {
+          facingMode: { ideal: "environment" },
+          height: { exact: 480 },
+          width: { exact: 640 },
+        },
+      })
+      .then((stream) => {
+        const videoElement = document.getElementById("video-table");
+        videoElement.srcObject = stream;
+      })
+      .catch((error) => {
+        console.error("Error accessing camera:", error);
+      });
+
+    videoElement.onloadedmetadata = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = videoElement.videoWidth;
+      canvas.height = videoElement.videoHeight;
+      const ctx = canvas.getContext("2d");
+
+      boundingBoxCanvas.width = videoElement.videoWidth;
+      boundingBoxCanvas.height = videoElement.videoHeight;
+
+      const detectFrame = async () => {
+        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+        const imageBlob = await new Promise((resolve) =>
+          canvas.toBlob(resolve, "image/jpeg")
+        );
+        const boxes = await detect_objects_on_image(imageBlob);
+        draw_image_and_boxes(imageBlob, boxes);
+
+        requestAnimationFrame(detectFrame); // Detect objects in the next frame
+      };
+
+      detectFrame(); // Start detecting objects in frames
+    };
   }
 });
-
-// async function deskewAndDisplayImage(captureCanvas, targetElementId) {
-//   cv['onRuntimeInitialized'] = async () => {
-//       // Convert canvas to OpenCV Mat
-//       let src = cv.imread(captureCanvas);
-//       let dst = new cv.Mat();
-//       let M = cv.Mat.eye(2, 3, cv.CV_32FC1);
-//       let dsize = new cv.Size(src.rows, src.cols);
-
-//       // Convert to grayscale
-//       cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
-
-//       // Detect edges
-//       cv.Canny(src, src, 50, 200, 3);
-
-//       // Find lines
-//       let lines = new cv.Mat();
-//       cv.HoughLinesP(src, lines, 1, Math.PI / 180, 2, null, null, 30, 10);
-
-//       // Calculate the angle here based on the detected lines
-//       // This is a simplified approach and might need adjustment
-//       let angle = 0;
-//       for (let i = 0; i < lines.rows; ++i) {
-//           let startPoint = new cv.Point(lines.data32S[i * 4], lines.data32S[i * 4 + 1]);
-//           let endPoint = new cv.Point(lines.data32S[i * 4 + 2], lines.data32S[i * 4 + 3]);
-//           angle += Math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x);
-//       }
-//       angle /= lines.rows;
-//       angle = angle * (180 / Math.PI);
-
-//       // Rotate the image to deskew
-//       let center = new cv.Point(src.cols / 2, src.rows / 2);
-//       M = cv.getRotationMatrix2D(center, angle, 1);
-//       cv.warpAffine(src, dst, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
-
-//       // Convert the processed OpenCV image back to a Data URL
-//       cv.imshow('canvasOutput', dst); // 'canvasOutput' is an id of an invisible canvas element
-//       let canvas = document.getElementById('canvasOutput');
-//       let newDataURL = canvas.toDataURL('image/jpeg');
-
-//       // Display the deskewed image
-//       const imgElement = document.createElement("img");
-//       imgElement.src = newDataURL;
-//       imgElement.style.margin = "10px";
-//       document.getElementById(targetElementId).appendChild(imgElement);
-
-//       // Clean up
-//       src.delete(); dst.delete(); M.delete(); lines.delete();
-//   };
-// }
 
 /**
  * Function draws the image from provided file
