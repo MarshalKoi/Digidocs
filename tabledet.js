@@ -155,6 +155,7 @@ const startCameraButton = document.querySelector(".start-camera");
 
 async function initializeCamera() {
   try {
+    document.getElementById("videoContainer").style.display = "block";
     const stream = await navigator.mediaDevices.getUserMedia({
       video: {
         facingMode: { ideal: "environment" },
@@ -164,10 +165,13 @@ async function initializeCamera() {
     });
     videoElement.srcObject = stream;
     videoElement.onloadedmetadata = () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = videoElement.videoWidth;
+    canvas.height = videoElement.videoHeight;
+
       videoElement.play();
       startDetectionLoop();
     };
-    document.getElementById("videoContainer").style.display = "block";
   } catch (error) {
     console.error("Error accessing camera:", error);
   }
