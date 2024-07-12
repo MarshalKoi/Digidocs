@@ -1,5 +1,40 @@
+import { detect_objects_on_image } from "./tabledet.js";
+import { setDesiredClassId } from './tabledet.js';
+
+
+// Function to determine and set the desired class ID based on the current page
+function assignClassIdByPage() {
+  const currentPage = window.location.pathname.split('/').pop(); // Get the current page name
+
+  if (currentPage === 'table.html') {
+    setDesiredClassId([8]); // Class 8 for table.html
+  } else if (currentPage === 'document.html' || currentPage === 'text.html') {
+    setDesiredClassId([8, 9]); // Classes 8 and 9 for document.html and text.html
+  }
+}
+
+// Call the function to assign the class ID when the page loads
+document.addEventListener('DOMContentLoaded', assignClassIdByPage);
+
 // Select the form
 const form = document.querySelector(".Input-form");
+
+async function handleDetection(source) {
+  const boxes = await detect_objects_on_image(source);
+  const tableOrTextDetected = check_for_table_or_text(boxes);
+
+  if (!tableOrTextDetected) {
+    alert("No table or text detected. Please upload an image with a table or text.");
+    document.dispatchEvent(new CustomEvent("detectionFailed"));
+    return false;
+  }
+  return true;
+}
+
+// Function to check if a table or text is detected in the image
+function check_for_table_or_text(boxes) {
+  return boxes.some(([, , , , label]) => label === "Table" || label === "Text");
+}
 
 // Add an event listener for the form submission
 form.addEventListener("submit", async (event) => {
@@ -10,6 +45,18 @@ form.addEventListener("submit", async (event) => {
   const inputUrl = document.querySelector('input[type="url"]');
   const previewImg = document.querySelector("#preview-img");
 
+  let detectionPassed = true;
+
+  if (inputFile.files.length > 0) {
+    const file = inputFile.files[0];
+    detectionPassed = await handleDetection(file);
+  } else if (previewImg && previewImg.src) {
+    const blob = await fetch(previewImg.src).then(r => r.blob());
+    detectionPassed = await handleDetection(blob);
+  }
+
+  if (!detectionPassed) return;
+  
   // Create a new FormData instance
   const formData = new FormData();
 
@@ -90,29 +137,31 @@ form.addEventListener("submit", async (event) => {
 
 async function previewXLSXFiles(blob) {
   const zip = await JSZip.loadAsync(blob);
-  const previewBox = document.getElementById('xlsx-preview-box');
+  const previewBox = document.getElementById("xlsx-preview-box");
   // Clear existing previews
   previewBox.innerHTML = "";
   zip.forEach(async (relativePath, file) => {
-    if (relativePath.endsWith('.xlsx')) {
-      const arrayBuffer = await file.async('arraybuffer');
-      const workbook = XLSX.read(arrayBuffer, {type: 'buffer'});
+    if (relativePath.endsWith(".xlsx")) {
+      const arrayBuffer = await file.async("arraybuffer");
+      const workbook = XLSX.read(arrayBuffer, { type: "buffer" });
       const firstSheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[firstSheetName];
 
       // Convert the worksheet to JSON, slice to the first 6 rows, and convert back to a worksheet
-      const rows = XLSX.utils.sheet_to_json(worksheet, {header:1}).slice(0, 6);
+      const rows = XLSX.utils
+        .sheet_to_json(worksheet, { header: 1 })
+        .slice(0, 6);
       const newWorksheet = XLSX.utils.aoa_to_sheet(rows);
       const htmlStr = XLSX.utils.sheet_to_html(newWorksheet);
 
       // Create a container for the preview content
-      const previewContent = document.createElement('div');
+      const previewContent = document.createElement("div");
       previewContent.innerHTML = htmlStr;
 
       // Set padding and table border styles for the preview content
       previewContent.style.padding = "10px";
-      previewContent.querySelector('table').style.borderCollapse = "collapse";
-      previewContent.querySelectorAll('td, th').forEach(cell => {
+      previewContent.querySelector("table").style.borderCollapse = "collapse";
+      previewContent.querySelectorAll("td, th").forEach((cell) => {
         cell.style.border = "1px solid black";
         cell.style.padding = "0 10px";
       });
@@ -129,15 +178,15 @@ async function previewDOCXFiles(docxBlob) {
     const arrayBuffer = await docxBlob.arrayBuffer();
 
     // Use mammoth.js to convert the DOCX ArrayBuffer to HTML
-    const result = await mammoth.convertToHtml({arrayBuffer: arrayBuffer});
+    const result = await mammoth.convertToHtml({ arrayBuffer: arrayBuffer });
 
-    // The generated HTML
-    const html = result.value;
+    // The generated HTML, wrapped in a div with text color set to black
+    const html = `<div style="color: black;">${result.value}</div>`;
 
     // Display the HTML in your preview container
-    const previewBox = document.getElementById('docx-preview-box');
+    const previewBox = document.getElementById("docx-preview-box");
     previewBox.innerHTML = html;
   } catch (error) {
-    console.error('Error processing DOCX file:', error);
+    console.error("Error processing DOCX file:", error);
   }
 }

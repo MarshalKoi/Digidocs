@@ -13775,3 +13775,46 @@ timm/lib/timm.js:
 Webflow.require('ix2').init(
 {"events":{"e":{"id":"e","animationType":"preset","eventTypeId":"SCROLL_INTO_VIEW","action":{"id":"","actionTypeId":"SLIDE_EFFECT","instant":false,"config":{"actionListId":"slideInBottom","autoStopEventId":"e-2"}},"mediaQueries":["main","medium","small","tiny"],"target":{"id":"664461d50e974a5d63e7363d|e464d218-f801-55d1-1f50-7da00b5bfb8f","appliesTo":"ELEMENT","styleBlockIds":[]},"targets":[{"id":"664461d50e974a5d63e7363d|e464d218-f801-55d1-1f50-7da00b5bfb8f","appliesTo":"ELEMENT","styleBlockIds":[]}],"config":{"loop":false,"playInReverse":false,"scrollOffsetValue":20,"scrollOffsetUnit":"%","delay":0,"direction":"BOTTOM","effectIn":true},"createdOn":1582925126668},"e-3":{"id":"e-3","animationType":"preset","eventTypeId":"SCROLL_INTO_VIEW","action":{"id":"","actionTypeId":"SLIDE_EFFECT","instant":false,"config":{"actionListId":"slideInBottom","autoStopEventId":"e-4"}},"mediaQueries":["main","medium","small","tiny"],"target":{"id":"664461d50e974a5d63e7363d|270e8437-efa3-df11-d438-de69b23e41e9","appliesTo":"ELEMENT","styleBlockIds":[]},"targets":[{"id":"664461d50e974a5d63e7363d|270e8437-efa3-df11-d438-de69b23e41e9","appliesTo":"ELEMENT","styleBlockIds":[]}],"config":{"loop":false,"playInReverse":false,"scrollOffsetValue":20,"scrollOffsetUnit":"%","delay":0,"direction":"BOTTOM","effectIn":true},"createdOn":1582925147477},"e-5":{"id":"e-5","animationType":"preset","eventTypeId":"SCROLL_INTO_VIEW","action":{"id":"","actionTypeId":"SLIDE_EFFECT","instant":false,"config":{"actionListId":"slideInBottom","autoStopEventId":"e-6"}},"mediaQueries":["main","medium","small","tiny"],"target":{"id":"664461d50e974a5d63e7363d|29c25774-570b-ddb2-69b5-f4ddbb194afd","appliesTo":"ELEMENT","styleBlockIds":[]},"targets":[{"id":"664461d50e974a5d63e7363d|29c25774-570b-ddb2-69b5-f4ddbb194afd","appliesTo":"ELEMENT","styleBlockIds":[]}],"config":{"loop":false,"playInReverse":false,"scrollOffsetValue":20,"scrollOffsetUnit":"%","delay":100,"direction":"BOTTOM","effectIn":true},"createdOn":1582925159926},"e-7":{"id":"e-7","animationType":"preset","eventTypeId":"SCROLL_INTO_VIEW","action":{"id":"","actionTypeId":"SLIDE_EFFECT","instant":false,"config":{"actionListId":"slideInBottom","autoStopEventId":"e-8"}},"mediaQueries":["main","medium","small","tiny"],"target":{"id":"664461d50e974a5d63e7363d|49e69b8a-ef40-4d84-1f92-d2617143b8db","appliesTo":"ELEMENT","styleBlockIds":[]},"targets":[{"id":"664461d50e974a5d63e7363d|49e69b8a-ef40-4d84-1f92-d2617143b8db","appliesTo":"ELEMENT","styleBlockIds":[]}],"config":{"loop":false,"playInReverse":false,"scrollOffsetValue":20,"scrollOffsetUnit":"%","delay":200,"direction":"BOTTOM","effectIn":true},"createdOn":1582925172529}},"actionLists":{"slideInBottom":{"id":"slideInBottom","useFirstGroupAsInitialState":true,"actionItemGroups":[{"actionItems":[{"actionTypeId":"STYLE_OPACITY","config":{"delay":0,"duration":0,"target":{"id":"N/A","appliesTo":"TRIGGER_ELEMENT","useEventTarget":true},"value":0}}]},{"actionItems":[{"actionTypeId":"TRANSFORM_MOVE","config":{"delay":0,"duration":0,"target":{"id":"N/A","appliesTo":"TRIGGER_ELEMENT","useEventTarget":true},"xValue":0,"yValue":100,"xUnit":"PX","yUnit":"PX","zUnit":"PX"}}]},{"actionItems":[{"actionTypeId":"TRANSFORM_MOVE","config":{"delay":0,"easing":"outQuart","duration":1000,"target":{"id":"N/A","appliesTo":"TRIGGER_ELEMENT","useEventTarget":true},"xValue":0,"yValue":0,"xUnit":"PX","yUnit":"PX","zUnit":"PX"}},{"actionTypeId":"STYLE_OPACITY","config":{"delay":0,"easing":"outQuart","duration":1000,"target":{"id":"N/A","appliesTo":"TRIGGER_ELEMENT","useEventTarget":true},"value":1}}]}]}},"site":{"mediaQueries":[{"key":"main","min":992,"max":10000},{"key":"medium","min":768,"max":991},{"key":"small","min":480,"max":767},{"key":"tiny","min":0,"max":479}]}}
 );
+
+document.addEventListener('DOMContentLoaded', function() {
+  var urlInput = document.querySelector('input[type="url"]');
+  if (urlInput) {
+    urlInput.addEventListener('input', function() {
+      const urlPreviewImg = document.getElementById('url-preview-img');
+      const urlInputValue = this.value;
+
+      // Validate the URL pattern (basic validation)
+      const urlPattern = /^https?:\/\/.+(\.jpg|\.png)$/;
+      if (urlPattern.test(urlInputValue)) {
+        urlPreviewImg.src = urlInputValue;
+        urlPreviewImg.style.display = 'block'; // Show the preview image
+      } else {
+        urlPreviewImg.style.display = 'none'; // Hide the preview image if URL is invalid
+        urlPreviewImg.src = ''; // Clear the source
+      }
+    });
+  } else {
+    console.error('Element with ID "url-input" not found.');
+  }
+
+  const submitButton = document.querySelector('.form_button-group');
+  if (submitButton) {
+    submitButton.addEventListener('click', function(event) {
+      // Always clear the API output container
+      document.getElementById('api-output-container').innerHTML = '';
+
+      // Determine which box to clear based on the current URL
+      const currentPageUrl = window.location.href;
+      
+      // Clear the xlsx box if the URL contains 'table.html'
+      if (currentPageUrl.includes('table.html')) {
+        document.getElementById('xlsx-preview-box').innerHTML = '';
+      }
+      // Clear the docx box if the URL contains 'text.html' or 'document.html'
+      else if (currentPageUrl.includes('text.html') || currentPageUrl.includes('document.html')) {
+        document.getElementById('docx-preview-box').innerHTML = '';
+      }
+    });
+  }
+});
+

@@ -109,7 +109,8 @@ window.addEventListener("DOMContentLoaded", (event) => {
   const removeFileButton = document.querySelector(".remove-file");
   const fileNameElement = document.querySelector(".file-name");
   const uploadIcon = document.querySelector(".upload-icon");
-  const urlInput = document.querySelector(".url"); // Use '.url' as the selector
+  const urlInput = document.querySelector(".url");
+  const imagePreview = document.getElementById("uploaded-image"); // Assuming this is your preview img element
 
   fileInput.addEventListener("change", function () {
     if (this.files && this.files[0]) {
@@ -117,8 +118,9 @@ window.addEventListener("DOMContentLoaded", (event) => {
       removeFileButton.style.display = "block";
       uploadIcon.style.display = "none";
       urlInput.disabled = true;
+      imagePreview.style.display = "block"; // Show the preview element
+      imagePreview.src = URL.createObjectURL(this.files[0]); // Set the preview image source
     } else {
-      // If no file is selected, hide the removeFileButton
       removeFileButton.style.display = "none";
       uploadIcon.style.display = "block";
       urlInput.disabled = false;
@@ -128,12 +130,14 @@ window.addEventListener("DOMContentLoaded", (event) => {
 
   removeFileButton.addEventListener("click", function (event) {
     event.stopPropagation();
-    fileInput.value = "";
+    fileInput.value = ""; // Clear the file input
     fileNameElement.textContent = "";
     this.style.display = "none";
     uploadIcon.style.display = "block";
     urlInput.disabled = false;
     setCameraBlockPointerEvents(true);
+    imagePreview.style.display = "none"; // Hide the preview element
+    imagePreview.src = ""; // Clear the preview image source
   });
 });
 
@@ -150,8 +154,17 @@ function isVideoFeedActive() {
 //Camera script
 const videoElement = document.getElementById("video-table");
 const boundingBoxCanvas = document.getElementById("boundingBoxCanvas");
-const boundingBoxCtx = boundingBoxCanvas.getContext("2d");
 const startCameraButton = document.querySelector(".start-camera");
+
+let globalDesiredClassId = [];
+
+/**
+ * Setter function to update the desired class ID based on the page context
+ * @param desiredClassId Array of desired class IDs to specify the type of object to detect
+ */
+export function setDesiredClassId(desiredClassId) {
+  globalDesiredClassId = desiredClassId;
+}
 
 startCameraButton.addEventListener("click", async () => {
   if (isVideoFeedActive()) {
@@ -283,7 +296,7 @@ function draw_image_and_boxes(file, boxes) {
  * @param buf Input image body
  * @returns Array of bounding boxes in format [[x1,y1,x2,y2,object_type,probability],..]
  */
-async function detect_objects_on_image(buf) {
+export async function detect_objects_on_image(buf) {
   const [input, img_width, img_height] = await prepare_input(buf);
   const output = await run_model(input);
   return process_output(output, img_width, img_height);
@@ -349,6 +362,7 @@ async function run_model(input) {
  */
 function process_output(output, img_width, img_height) {
   let boxes = [];
+  let desired_class_id = globalDesiredClassId;
   for (let index = 0; index < 8400; index++) {
     const [class_id, prob] = [...Array(11).keys()]
       .map((col) => [col, output[8400 * (col + 4) + index]])
@@ -356,7 +370,7 @@ function process_output(output, img_width, img_height) {
     if (prob < 0.5) {
       continue;
     }
-    if (class_id !== 8) {
+    if (!desired_class_id.includes(class_id)) {
       continue;
     }
     const label = yolo_classes[class_id];

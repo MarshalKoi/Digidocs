@@ -41,7 +41,6 @@ for (let i = 0; i < dropZones.length; i++) {
   let fileNameElement = fileNameElements[i];
 
   dropZone.addEventListener("click", function () {
-    fileInput.click();
   });
 
   fileInput.addEventListener("change", function () {
@@ -109,7 +108,8 @@ window.addEventListener("DOMContentLoaded", (event) => {
   const removeFileButton = document.querySelector(".remove-file");
   const fileNameElement = document.querySelector(".file-name");
   const uploadIcon = document.querySelector(".upload-icon");
-  const urlInput = document.querySelector(".url"); // Use '.url' as the selector
+  const urlInput = document.querySelector(".url");
+  const imagePreview = document.getElementById("uploaded-image"); // Assuming this is your preview img element
 
   fileInput.addEventListener("change", function () {
     if (this.files && this.files[0]) {
@@ -117,8 +117,9 @@ window.addEventListener("DOMContentLoaded", (event) => {
       removeFileButton.style.display = "block";
       uploadIcon.style.display = "none";
       urlInput.disabled = true;
+      imagePreview.style.display = "block"; // Show the preview element
+      imagePreview.src = URL.createObjectURL(this.files[0]); // Set the preview image source
     } else {
-      // If no file is selected, hide the removeFileButton
       removeFileButton.style.display = "none";
       uploadIcon.style.display = "block";
       urlInput.disabled = false;
@@ -128,12 +129,14 @@ window.addEventListener("DOMContentLoaded", (event) => {
 
   removeFileButton.addEventListener("click", function (event) {
     event.stopPropagation();
-    fileInput.value = "";
+    fileInput.value = ""; // Clear the file input
     fileNameElement.textContent = "";
     this.style.display = "none";
     uploadIcon.style.display = "block";
     urlInput.disabled = false;
     setCameraBlockPointerEvents(true);
+    imagePreview.style.display = "none"; // Hide the preview element
+    imagePreview.src = ""; // Clear the preview image source
   });
 });
 

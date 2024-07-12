@@ -3014,6 +3014,14 @@ p {
   }
 }
 
+.drop-zone {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
 .file-container {
   display: flex;
   justify-content: center;
