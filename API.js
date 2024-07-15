@@ -89,8 +89,9 @@ form.addEventListener("submit", async (event) => {
     endpoint += `?${inputUrl.name}=${encodeURIComponent(inputUrl.value)}`;
   }
 
-  // Send the request to the backend API
-  let response;
+// Send the request to the backend API
+let response;
+try {
   if (inputWithData === inputUrl && method === "GET") {
     // If the inputWithData is the URL input and method is GET, send the request without a body
     response = await fetch(endpoint);
@@ -131,8 +132,18 @@ form.addEventListener("submit", async (event) => {
     outputContainer.innerHTML = ""; // Clear previous output
     outputContainer.appendChild(link);
   } else {
-    console.error("Error:", response.statusText);
+    // The request was not successful, parse the error message from the response
+    const errorData = await response.json(); // Parse the JSON response to get the error details
+    const errorMessage = errorData.detail || "An unknown error occurred"; // Use the 'detail' field for the error message
+    alert(`Error: ${errorMessage}`);
+    window.location.reload();
   }
+} catch (error) {
+  // Handle network errors or other fetch issues
+  console.error("Network error:", error);
+  alert("A network error occurred. Please try again.");
+  window.location.reload();
+}
 });
 
 async function previewXLSXFiles(blob) {
