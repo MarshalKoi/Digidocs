@@ -161,24 +161,17 @@ async function previewXLSXFiles(blob) {
       // Convert the worksheet to JSON, slice to the first 6 rows, and convert back to a worksheet
       const rows = XLSX.utils
         .sheet_to_json(worksheet, { header: 1 })
-        .slice(0, 6);
       const newWorksheet = XLSX.utils.aoa_to_sheet(rows);
       const htmlStr = XLSX.utils.sheet_to_html(newWorksheet);
 
-      // Create a container for the preview content
-      const previewContent = document.createElement("div");
-      previewContent.innerHTML = htmlStr;
+      // Create an iframe for the preview content
+      const iframe = document.createElement("iframe");
+      iframe.style.width = "100%";
+      iframe.style.height = "400px"; // Adjust height as needed
+      iframe.srcdoc = htmlStr;
 
-      // Set padding and table border styles for the preview content
-      previewContent.style.padding = "10px";
-      previewContent.querySelector("table").style.borderCollapse = "collapse";
-      previewContent.querySelectorAll("td, th").forEach((cell) => {
-        cell.style.border = "1px solid black";
-        cell.style.padding = "0 10px";
-      });
-
-      // Append the preview content without replacing the entire innerHTML
-      previewBox.appendChild(previewContent);
+      // Append the iframe to the preview box
+      previewBox.appendChild(iframe);
     }
   });
 }
@@ -191,12 +184,16 @@ async function previewDOCXFiles(docxBlob) {
     // Use mammoth.js to convert the DOCX ArrayBuffer to HTML
     const result = await mammoth.convertToHtml({ arrayBuffer: arrayBuffer });
 
-    // The generated HTML, wrapped in a div with text color set to black
-    const html = `<div style="color: black;">${result.value}</div>`;
+    // Create an iframe for the preview content
+    const iframe = document.createElement("iframe");
+    iframe.style.width = "100%";
+    iframe.style.height = "400px"; // Adjust height as needed
+    iframe.srcdoc = `<div style="color: black;">${result.value}</div>`;
 
-    // Display the HTML in your preview container
+    // Display the iframe in your preview container
     const previewBox = document.getElementById("docx-preview-box");
-    previewBox.innerHTML = html;
+    previewBox.innerHTML = ""; // Clear existing previews
+    previewBox.appendChild(iframe);
   } catch (error) {
     console.error("Error processing DOCX file:", error);
   }
